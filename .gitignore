@@ -1,0 +1,5 @@
+/dist
+**/node_modules/
+./Admin/node_modules
+./Api/node_modules
+./App/node_modules
