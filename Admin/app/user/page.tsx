@@ -65,7 +65,6 @@ export default function Home() {
       <Layout>
         <Navbar isCompact isBordered variant="sticky">
           <Navbar.Brand>
-            {/* <AcmeLogo /> */}
             <Text b color="inherit" hideIn="xs">
               ADMIN
             </Text>

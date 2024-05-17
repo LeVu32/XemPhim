@@ -33,9 +33,11 @@ export async function login(req, res) {
       username: username.toLowerCase(),
       password: md5(password),
     });
+    console.log(data);
     if (data) {
       const payload = data.toObject();
       const token = jwt.sign(payload, process.env.JWT_SECRET_TOKEN);
+      console.log(token);
       res.json({ status: true, token: token });
     } else {
       res.json({

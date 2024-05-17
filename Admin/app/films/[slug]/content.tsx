@@ -144,7 +144,7 @@ function Content({ params }: { params: any }) {
           <div className="flex">
             {data?.episode?.map((item: any, i: number) => {
               return (
-                <div>
+                <div key={i}>
                   <div className="flex items-center justify-center mb-[20px]">
                     <Popover>
                       <Popover.Trigger>

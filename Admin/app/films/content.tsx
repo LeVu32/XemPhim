@@ -26,18 +26,17 @@ function Content() {
   const [base64Video, setBase64Video] = useState<string | null>(null);
 
   const handleUpload = async () => {
-    if (!base64Image || !name || !description || !kind || !idTrailer) {
-      return;
-    }
+    console.log("click button");
+
     try {
       const token = getTokenFromLocalStorage();
       if (!token) {
         router.push("/login");
         return;
       }
-
+      console.log(token);
       const response: AxiosResponse = await axios.post(
-        "http://localhost:6945/api/film/films",
+        "http://localhost:1209/api/film/films",
         {
           image: base64Image,
           video: base64Video,

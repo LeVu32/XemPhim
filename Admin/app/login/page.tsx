@@ -95,9 +95,9 @@ const Login: React.FC = () => {
               onClick={async () => {
                 try {
                   const data = { username, password };
-
                   const dataRes: { status: number; token: string } =
                     await postData(data);
+                  console.log(dataRes);
                   localStorage.setItem("token", dataRes.token);
                   router.push("/");
                 } catch (error) {
