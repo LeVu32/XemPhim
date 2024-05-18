@@ -11,6 +11,7 @@ import {
   deleteUser,
   getFilm,
   deleteEpisode,
+  uploadFilmURL,
 } from "../Controller/AdminController.js";
 
 import { ValidatePass } from "../Middleware/validatePasswords.js";
@@ -30,5 +31,6 @@ adminRoute.post("/delete/film", verifyTokenAdmin, deleteFilm);
 adminRoute.post("/delete/episode", verifyTokenAdmin, deleteEpisode);
 adminRoute.post("/delete/user", verifyTokenAdmin, deleteUser);
 adminRoute.post("/episode", verifyTokenAdmin, addEpisodeFilm);
+adminRoute.post("/upload-video", uploadFilmURL);
 
 export default adminRoute;

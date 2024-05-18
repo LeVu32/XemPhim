@@ -8,6 +8,7 @@ import Film from "../models/FilmModel.js";
 import User from "../models/UserModel.js";
 import { v4 as uuidv4 } from "uuid";
 import { promises as fileSystem } from "fs";
+import { getObject, getObjectSignedUrl, uploadStream } from "./S3Controller.js";
 
 export async function loginAdmin(req, res) {
   try {
@@ -82,7 +83,7 @@ export async function registerAdmin(req, res) {
 const writeVideo = async (path, data) => {
   const dataWrite = Buffer.from(
     data.replace(/^data:video\/\w+;base64,/, ""),
-    "base64"
+    "base64",
   );
 
   await fileSystem.writeFile(path, dataWrite, { encoding: "base64" });
@@ -130,7 +131,7 @@ export const addEpisodeFilm = async (req, res) => {
       const path = await writeImg(`public/images/${uuidv4()}.png`, image);
       const newvideo = await compressVideo(
         video,
-        `public/videos/${uuidv4()}.mp4`
+        `public/videos/${uuidv4()}.mp4`,
       );
       // const pathVideo = await writeVideo(
       //   `public/videos/${uuidv4()}.mp4`,
@@ -160,7 +161,7 @@ export const addEpisodeFilm = async (req, res) => {
 const writeImg = async (path, data) => {
   const dataWrite = Buffer.from(
     data.replace(/^data:image\/\w+;base64,/, ""),
-    "base64"
+    "base64",
   );
 
   await fileSystem.writeFile(path, dataWrite, { encoding: "base64" });
@@ -183,7 +184,7 @@ export const addFilm = async (req, res) => {
       const path = await writeImg(`public/images/${uuidv4()}.png`, image);
       const pathVideo = await writeVideo(
         `public/videos/${uuidv4()}.mp4`,
-        video
+        video,
       );
 
       const newFilm = new Film({
@@ -276,6 +277,25 @@ export const getAllUser = async (req, res) => {
   try {
     let data = await User.find({});
     res.json({ status: true, data: data });
+  } catch (err) {
+    console.log(err);
+    res.json({ status: false, message: err });
+  }
+};
+
+export const uploadFilmURL = async (req, res) => {
+  try {
+    const fileUpload = {
+      filename: req.files["video"].name,
+      originalname: req.files["video"].name,
+      encoding: req.files["video"].encoding,
+      mimetype: req.files["video"].mimetype,
+      size: req.files["video"].size,
+      buffer: req.files["video"].data,
+    };
+    const url = await uploadStream(fileUpload);
+    const respo = await getObjectSignedUrl(url.Key);
+    res.json({ status: true, message: "Test ok", data: respo });
   } catch (err) {
     console.log(err);
     res.json({ status: false, message: err });

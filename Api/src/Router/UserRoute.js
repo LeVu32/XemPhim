@@ -9,6 +9,7 @@ import {
   like,
   getLiked,
   getInfo,
+  testMail,
 } from "../Controller/UserController.js";
 
 import { ValidateUsername } from "../Middleware/validateUsername.js";
@@ -26,5 +27,6 @@ userRoute.get("/search", verifyToken, getSearch);
 userRoute.post("/like", verifyToken, like);
 userRoute.get("/like", verifyToken, getLiked);
 userRoute.get("/info", verifyToken, getInfo);
+userRoute.get("/test", testMail);
 
 export default userRoute;

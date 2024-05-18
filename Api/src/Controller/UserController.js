@@ -4,27 +4,43 @@ import validator from "validator";
 import md5 from "md5";
 import User from "../models/UserModel.js";
 import Film from "../models/FilmModel.js";
+import { sendMail, sendMailRegister } from "../Queue/sendMail.queue.js";
 
 export async function register(req, res) {
   try {
     const { username, password, displayname } = req.body;
     const data = await User.find({ username });
     if (data?.length > 0) {
-      res.json({ status: false, message: "Tài khoản đã tồn tại" });
-    } else {
-      const newUser = new User({
-        displayname: displayname,
-        username: username.toLowerCase(),
-        password: md5(password),
-      });
-      await newUser.save();
-      res.json({ status: true, message: `Create ${username} done` });
+      return res.json({ status: false, message: "Tài khoản đã tồn tại" });
     }
+    await sendMailRegister(
+      "lequyvu21@gmail.com",
+      "dahashophihi@gmail.com",
+      "hihi",
+    );
+    const newUser = new User({
+      displayname: displayname,
+      username: username.toLowerCase(),
+      password: md5(password),
+    });
+    await newUser.save();
+    return res.json({ status: true, message: `Create ${username} done` });
   } catch (err) {
     console.log(err);
     res.json({ status: false, message: err.message });
   }
 }
+
+export const testMail = async (req, res) => {
+  const a = await sendMailRegister(
+    "danghao1209@gmail.com",
+    "dahashophihi@gmail.com",
+    "hihi",
+  );
+  console.log(a);
+  return res.json({ status: true, message: `Create done` });
+};
+
 export async function login(req, res) {
   try {
     const { username, password } = req.body;
@@ -63,14 +79,14 @@ export async function view(req, res) {
       datafilm.view++;
       await FilmModel.findOneAndUpdate(
         { _id: id },
-        { $set: { view: datafilm.view } }
+        { $set: { view: datafilm.view } },
       );
       //push id to history
       let dataUser = await UserModel.findOne({ username: data.username });
       if (dataUser.toObject().history.length == 0) {
         await UserModel.findOneAndUpdate(
           { username: data.username },
-          { $push: { history: { id: id, timespan: timespan } } }
+          { $push: { history: { id: id, timespan: timespan } } },
         );
       } else {
         let isExit = false;
@@ -104,12 +120,12 @@ export async function view(req, res) {
           });
           await UserModel.findOneAndUpdate(
             { username: data.username },
-            { $set: { history: newArr } }
+            { $set: { history: newArr } },
           );
         } else {
           await UserModel.findOneAndUpdate(
             { username: data.username },
-            { $push: { history: { id: id, timespan: timespan } } }
+            { $push: { history: { id: id, timespan: timespan } } },
           );
         }
       }
@@ -172,7 +188,7 @@ export async function search(req, res) {
       if (search.length > 0) {
         await UserModel.findOneAndUpdate(
           { username: data.username },
-          { $addToSet: { search: search } }
+          { $addToSet: { search: search } },
         );
         let datasearch = await FilmModel.find({});
         let result = datasearch.filter((item) => {
@@ -216,7 +232,7 @@ export async function like(req, res) {
       if (dataUser.toObject().likedvideo == 0) {
         await UserModel.findOneAndUpdate(
           { username: data.username },
-          { $push: { likedvideo: { id: id, timespan: timespan } } }
+          { $push: { likedvideo: { id: id, timespan: timespan } } },
         );
       } else {
         let isExit = false;
@@ -250,12 +266,12 @@ export async function like(req, res) {
           });
           await UserModel.findOneAndUpdate(
             { username: data.username },
-            { $set: { likedvideo: newArr } }
+            { $set: { likedvideo: newArr } },
           );
         } else {
           await UserModel.findOneAndUpdate(
             { username: data.username },
-            { $push: { likedvideo: { id: id, timespan: timespan } } }
+            { $push: { likedvideo: { id: id, timespan: timespan } } },
           );
         }
       }

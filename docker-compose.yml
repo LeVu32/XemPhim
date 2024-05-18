@@ -21,7 +21,7 @@ services:
     build:
       context: ./Admin
       dockerfile: Dockerfile
-      target: PRODUCTION
+      # target: PRODUCTION
     container_name: admin-phim
     command: npm run dev
     ports:
