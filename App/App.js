@@ -9,6 +9,9 @@ import Register from "./screens/Register";
 import FilmDetail from "./screens/FilmDetail";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
+import ForgotPassword from "./screens/ForgotPassword";
+import { LogBox } from "react-native";
+import ChangePassword from "./screens/ChangePassword";
 
 const theme = {
   ...DefaultTheme,
@@ -19,6 +22,7 @@ const theme = {
 };
 const Stack = createStackNavigator();
 export default function App() {
+  LogBox.ignoreAllLogs(true);
   const [expoPushToken, setExpoPushToken] = useState("");
 
   useEffect(() => {
@@ -55,6 +59,16 @@ export default function App() {
         <Stack.Screen
           name="Login"
           component={Login}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ForgotPassword"
+          component={ForgotPassword}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ChangePass"
+          component={ChangePassword}
           options={{ headerShown: false }}
         />
         <Stack.Screen

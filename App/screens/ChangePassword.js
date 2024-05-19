@@ -15,46 +15,36 @@ import { COLORS, SIZES } from "../constants";
 import { images } from "../constants";
 import { NOTIFICATIONS } from "expo-permissions";
 import { linkserver } from "./IPCONFIG";
-const Login = ({ navigation }) => {
-  const [username, setUsername] = useState("");
+
+const ChangePassword = ({ navigation }) => {
   const [password, setPassword] = useState("");
+  const [rePassword, setRePassword] = useState("");
   const [expoPushToken, setExpoPushToken] = useState("");
-  useEffect(() => {
-    async function getToken() {
-      let token = await AsyncStorage.getItem("token");
-      if (token) {
-        navigation.navigate("Tabs");
-      } else {
-      }
-    }
-    getToken();
-  });
-  function Login(username, password) {
+
+  async function changePass() {
     let data = {
-      username: username,
+      rePassword: rePassword,
       password: password,
     };
-    axios
-      .post(`${linkserver}/api/user/login`, data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-      .then(async (value) => {
-        try {
-          if (value.data.status) {
-            await AsyncStorage.setItem("token", value.data.token);
-            navigation.navigate("Tabs");
-          } else {
-            Alert.alert("Thất bại", value.data.message, [
-              { text: "OK", onPress: () => console.log("OK Pressed") },
-            ]);
-          }
-        } catch (error) {}
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    try {
+      const token = await AsyncStorage.getItem("tokenPassword");
+      const res = await axios.post(
+        `${linkserver}/api/user/change-password`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `${token}`,
+          },
+        }
+      );
+
+      navigation.navigate("Login");
+    } catch (error) {
+      Alert.alert("Thất bại", value.data.message, [
+        { text: "OK", onPress: () => console.log("OK Pressed") },
+      ]);
+    }
   }
   return (
     <View style={styles.container}>
@@ -65,39 +55,29 @@ const Login = ({ navigation }) => {
         ></Image>
         <TextInput
           style={styles.input}
-          placeholder="Email hoặc số điện thoại"
+          placeholder="Mật khẩu mới"
           placeholderTextColor="#fff"
-          defaultValue={username}
-          onChangeText={(newText) => setUsername(newText)}
+          defaultValue={password}
+          onChangeText={(newText) => setPassword(newText)}
+          textContentType="password"
         ></TextInput>
 
         <TextInput
           style={styles.input}
-          placeholder="Mật Khẩu"
+          placeholder="Xác nhận mật khẩu"
           placeholderTextColor="#fff"
-          onChangeText={(newText) => setPassword(newText)}
+          onChangeText={(newText) => setRePassword(newText)}
           textContentType="password"
         ></TextInput>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => {
-            // navigation.navigate("Tabs");
-            Login(username, password);
+          onPress={async () => {
+            await changePass();
+            navigation.navigate("Login");
           }}
         >
-          <Text style={{ color: "#fff", fontSize: 18 }}>Đăng Nhập</Text>
+          <Text style={{ color: "#fff", fontSize: 18 }}>Đổi Mật Khẩu</Text>
         </TouchableOpacity>
-        <Text
-          style={{ color: "#fff", opacity: 0.6, fontSize: 12, marginTop: 20 }}
-          onPress={() => {
-            navigation.navigate("Register");
-          }}
-        >
-          Nếu bạn chưa có tài khoản, vui lòng{" "}
-          <Text style={{ textDecorationLine: "underline", fontWeight: "600" }}>
-            đăng ký
-          </Text>
-        </Text>
 
         <Text
           style={{
@@ -108,10 +88,10 @@ const Login = ({ navigation }) => {
             textDecorationLine: "underline",
           }}
           onPress={() => {
-            navigation.navigate("ForgotPassword");
+            navigation.navigate("Login");
           }}
         >
-          Quên mật khẩu
+          Trang chủ
         </Text>
       </View>
     </View>
@@ -151,4 +131,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-export default Login;
+export default ChangePassword;

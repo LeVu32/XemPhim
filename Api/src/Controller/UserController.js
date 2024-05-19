@@ -9,11 +9,12 @@ import {
   sendMailRegister,
 } from "../Queue/sendMail.queue.js";
 import { cacheOtp, getOtp } from "../Redis/initRedis.js";
+import { getObjectSignedUrl } from "./S3Controller.js";
 
 export async function register(req, res) {
   try {
     const { username, password, displayname } = req.body;
-    const data = await User.find({ username });
+    const data = await User.find({ username: username.toLowerCase() });
     if (data?.length > 0) {
       return res.json({ status: false, message: "Tài khoản đã tồn tại" });
     }
@@ -64,19 +65,21 @@ export async function view(req, res) {
       let { id } = req.body;
       console.log(id);
       let timespan = Date.now();
-      let datafilm = await FilmModel.findOne({ _id: id });
+      let datafilm = await Film.findOne({ _id: id });
       //update view
       datafilm.view++;
-      await FilmModel.findOneAndUpdate(
+      await Film.findOneAndUpdate(
         { _id: id },
-        { $set: { view: datafilm.view } },
+        { $set: { view: datafilm.view } }
       );
       //push id to history
-      let dataUser = await User.findOne({ username: data.username });
+      let dataUser = await User.findOne({
+        username: data.username.toLowerCase(),
+      });
       if (dataUser.toObject().history.length == 0) {
         await User.findOneAndUpdate(
-          { username: data.username },
-          { $push: { history: { id: id, timespan: timespan } } },
+          { username: data.username.toLowerCase() },
+          { $push: { history: { id: id, timespan: timespan } } }
         );
       } else {
         let isExit = false;
@@ -109,13 +112,13 @@ export async function view(req, res) {
             return 0;
           });
           await User.findOneAndUpdate(
-            { username: data.username },
-            { $set: { history: newArr } },
+            { username: data.username.toLowerCase() },
+            { $set: { history: newArr } }
           );
         } else {
           await User.findOneAndUpdate(
-            { username: data.username },
-            { $push: { history: { id: id, timespan: timespan } } },
+            { username: data.username.toLowerCase() },
+            { $push: { history: { id: id, timespan: timespan } } }
           );
         }
       }
@@ -129,14 +132,31 @@ export async function view(req, res) {
     res.json({ status: false, message: err });
   }
 }
-function getFilm(id) {
-  return FilmModel.findOne({ _id: id });
+
+async function getFilm(id) {
+  let data = await Film.findOne({ _id: id });
+  data.film = await getObjectSignedUrl(data.film);
+  data.image = await getObjectSignedUrl(data.image);
+
+  // Process the episodes asynchronously
+  data.episode = await Promise.all(
+    data.episode.map(async (item) => {
+      return {
+        ...item,
+        film: await getObjectSignedUrl(item.film),
+        image: await getObjectSignedUrl(item.image),
+      };
+    })
+  );
+  return data;
 }
 export async function getHistoryView(req, res) {
   try {
     const data = req.dataUser;
     if (data) {
-      let dataUser = await User.findOne({ username: data.username });
+      let dataUser = await User.findOne({
+        username: data.username.toLowerCase(),
+      });
       console.log(dataUser.toObject().history);
       let result = [];
       for (let i = 0; i < dataUser.toObject().history.length; i++) {
@@ -170,21 +190,30 @@ export async function getInfo(req, res) {
     res.json({ status: false, message: err });
   }
 }
+
 export async function search(req, res) {
   try {
     const data = req.dataUser;
     if (data) {
-      let { search } = req.body;
+      const { search } = req.body;
       if (search.length > 0) {
+        const regex = new RegExp(search, "i");
+
         await User.findOneAndUpdate(
-          { username: data.username },
-          { $addToSet: { search: search } },
+          { username: data.username.toLowerCase() },
+          { $addToSet: { search: search } }
         );
-        let datasearch = await FilmModel.find({});
-        let result = datasearch.filter((item) => {
-          if (item.name.toLowerCase().indexOf(search.toLowerCase()) != -1)
-            return item;
+
+        const datasearch = await Film.find({
+          $or: [{ description: regex }, { name: regex }],
         });
+        const result = await Promise.all(
+          datasearch.map(async (item) => {
+            console.log(item);
+            return await getFilm(item._id);
+          })
+        );
+
         res.json({ status: true, data: result });
       } else {
         res.json({ status: false, message: "Không được để trống" });
@@ -194,14 +223,17 @@ export async function search(req, res) {
     }
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    res.json({ status: false, message: err.message });
   }
 }
+
 export async function getSearch(req, res) {
   try {
     const data = req.dataUser;
     if (data) {
-      let dataUser = await User.findOne({ username: data.username });
+      let dataUser = await User.findOne({
+        username: data.username.toLowerCase(),
+      });
       res.json({ status: true, data: dataUser.toObject().search.reverse() });
     } else {
       res.json({ status: false, message: "JWT sai" });
@@ -218,11 +250,13 @@ export async function like(req, res) {
       let { id } = req.body;
       let timespan = Date.now();
       console.log(timespan);
-      let dataUser = await User.findOne({ username: data.username });
+      let dataUser = await User.findOne({
+        username: data.username.toLowerCase(),
+      });
       if (dataUser.toObject().likedvideo == 0) {
         await User.findOneAndUpdate(
-          { username: data.username },
-          { $push: { likedvideo: { id: id, timespan: timespan } } },
+          { username: data.username.toLowerCase() },
+          { $push: { likedvideo: { id: id, timespan: timespan } } }
         );
       } else {
         let isExit = false;
@@ -255,13 +289,13 @@ export async function like(req, res) {
             return 0;
           });
           await User.findOneAndUpdate(
-            { username: data.username },
-            { $set: { likedvideo: newArr } },
+            { username: data.username.toLowerCase() },
+            { $set: { likedvideo: newArr } }
           );
         } else {
           await User.findOneAndUpdate(
-            { username: data.username },
-            { $push: { likedvideo: { id: id, timespan: timespan } } },
+            { username: data.username.toLowerCase() },
+            { $push: { likedvideo: { id: id, timespan: timespan } } }
           );
         }
       }
@@ -280,40 +314,51 @@ export async function getLiked(req, res) {
   try {
     const data = req.dataUser;
     if (data) {
-      let dataUser = await User.findOne({ username: data.username });
-      let result = [];
-      for (let i = 0; i < dataUser.toObject().likedvideo.length; i++) {
-        await getFilm(dataUser.toObject().likedvideo[i].id).then((data) => {
-          let res = {
-            film: data,
-            timespan: dataUser.toObject().likedvideo[i].timespan,
-          };
-          result.push(res);
-        });
+      const dataUser = await User.findOne({
+        username: data.username.toLowerCase(),
+      });
+
+      if (!dataUser) {
+        return res.json({ status: false, message: "User không tồn tại" });
       }
+
+      const likedVideos = dataUser.toObject().likedvideo;
+      console.log("likedVideos", likedVideos);
+      const resultPromises = likedVideos.map(async (likedVideo) => {
+        const filmData = await getFilm(likedVideo.id);
+        return {
+          film: filmData,
+          timespan: likedVideo.timespan,
+        };
+      });
+      const result = await Promise.all(resultPromises);
+      console.log(result);
+
       res.json({ status: true, data: result.reverse() });
     } else {
       res.json({ status: false, message: "JWT sai" });
     }
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    res.json({ status: false, message: err.message });
   }
 }
 
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    console.log(email);
-    const data = await User.findOne({ username: email });
+    if (!email) {
+      return res.json({ status: false, message: "Không được để trống email" });
+    }
+    const data = await User.findOne({ username: email.toLowerCase() });
     if (!data) {
       return res.json({ status: false, message: "Email không tồn tại" });
     }
     const otp = Math.floor(1000 + Math.random() * 9000);
-    const cache = await cacheOtp(email, otp);
+    const cache = await cacheOtp(email.toLowerCase(), otp);
     console.log(cache);
 
-    sendMailForgotPass(email, "dahashophihi@gmail.com", otp);
+    sendMailForgotPass(email.toLowerCase(), "dahashophihi@gmail.com", otp);
     return res.json({ status: true, message: "Mã OTP đã được gửi" });
   } catch (err) {
     console.log(err);
@@ -325,18 +370,19 @@ export const confirmOTP = async (req, res) => {
   try {
     const { otp, email } = req.body;
     console.log(email);
-    const data = await User.findOne({ username: email });
+    const data = await User.findOne({ username: email.toLowerCase() });
     if (!data) {
       return res
         .status(400)
         .json({ status: false, message: "Email không tồn tại" });
     }
-    const cache = await getOtp(email);
+    const cache = await getOtp(email.toLowerCase());
     console.log(cache);
     if (otp != cache) {
       return res.status(400).json({ status: false, message: "OTP khong dung" });
     }
     const token = jwt.sign({ email: email }, process.env.JWT_SECRET_TOKEN);
+    console.log(token);
     return res
       .status(200)
       .json({ status: true, message: "success", data: token });
@@ -355,7 +401,7 @@ export const changePass = async (req, res) => {
         .json({ status: false, message: "Mat khau khong khop" });
     }
     const { email } = req.dataUser;
-    const data = await User.findOne({ username: email });
+    const data = await User.findOne({ username: email.toLowerCase() });
     if (!data) {
       return res
         .status(400)

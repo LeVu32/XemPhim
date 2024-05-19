@@ -2,7 +2,6 @@ import path from "path";
 import fs from "fs-extra";
 import { fileURLToPath } from "url";
 import RangeParser from "range-parser";
-import Resize from "../Controller/Resize.js";
 import FilmModel from "../models/FilmModel.js";
 import { getObjectSignedUrl } from "./S3Controller.js";
 
@@ -14,7 +13,7 @@ export const getAll = async (req, res) => {
         item.film = await getObjectSignedUrl(item.film);
         item.image = await getObjectSignedUrl(item.image);
         return item;
-      }),
+      })
     );
     res.json({ status: true, data: result });
   } catch (err) {
@@ -30,6 +29,17 @@ export const getFilm = async (req, res) => {
     let data = await FilmModel.findOne({ _id: id });
     data.film = await getObjectSignedUrl(data.film);
     data.image = await getObjectSignedUrl(data.image);
+
+    // Process the episodes asynchronously
+    data.episode = await Promise.all(
+      data.episode.map(async (item) => {
+        return {
+          ...item,
+          film: await getObjectSignedUrl(item.film),
+          image: await getObjectSignedUrl(item.image),
+        };
+      })
+    );
 
     res.json({ status: true, data: data });
   } catch (err) {

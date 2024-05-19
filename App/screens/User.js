@@ -74,6 +74,7 @@ const User = ({ navigation }) => {
       },
     });
     if (data.data.status) {
+      console.log(data.data.data);
       setVideo(data.data.data);
     }
   }
@@ -95,7 +96,7 @@ const User = ({ navigation }) => {
     let timenow = Date.now();
     let diff = (timenow - item.timespan) / 1000 / 60;
     let timespan = convert(diff);
-
+    console.log(item.film);
     return (
       <View
         style={{

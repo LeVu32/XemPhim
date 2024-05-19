@@ -49,7 +49,7 @@ function Content() {
           headers: {
             Authorization: token,
           },
-        },
+        }
       );
 
       console.log(response.data);
@@ -79,7 +79,7 @@ function Content() {
               headers: {
                 Authorization: token,
               },
-            },
+            }
           );
           const { data } = response.data;
           setData(data);
@@ -232,7 +232,7 @@ function Content() {
                       headers: {
                         "Content-Type": "multipart/form-data",
                       },
-                    },
+                    }
                   );
                   setImage(imageUrl.data.data);
                 }
@@ -263,7 +263,7 @@ function Content() {
                       headers: {
                         "Content-Type": "multipart/form-data",
                       },
-                    },
+                    }
                   );
                   setVideo(videoUrl.data.data);
                 }
@@ -277,7 +277,7 @@ function Content() {
             <Button
               auto
               onPress={handleUpload}
-              disabled={image && video ? true : false}
+              disabled={!image || !video ? true : false}
             >
               Xác nhận
             </Button>

@@ -59,10 +59,12 @@ const FilmDetail = ({ route, navigation }) => {
       console.log(respon.data);
     }
   }, []);
+
   useEffect(() => {
     setcurrentVideo(film);
     setepisode(episode);
   }, []);
+
   async function Like(id) {
     let tokens = await AsyncStorage.getItem("token");
     let payload = {
@@ -85,6 +87,7 @@ const FilmDetail = ({ route, navigation }) => {
         <TouchableOpacity
           onPress={async () => {
             setcurrentVideo(item.film);
+            console.log("item.fim", item.film);
             setcurrentEpisode(item);
           }}
           style={{
@@ -133,6 +136,7 @@ const FilmDetail = ({ route, navigation }) => {
       </View>
     );
   }
+  console.log(currentVideo);
   return (
     <View style={styles.container}>
       <View style={{ marginTop: SIZES.padding * 2 + 5, flex: 1 }}>

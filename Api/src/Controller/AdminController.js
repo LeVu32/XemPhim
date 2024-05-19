@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import mongoose, { ObjectId } from "mongoose";
 import { fileURLToPath } from "url";
 import RangeParser from "range-parser";
-import Resize from "../Controller/Resize.js";
 import md5 from "md5";
 import Film from "../models/FilmModel.js";
 import User from "../models/UserModel.js";
@@ -83,7 +82,7 @@ export async function registerAdmin(req, res) {
 const writeVideo = async (path, data) => {
   const dataWrite = Buffer.from(
     data.replace(/^data:video\/\w+;base64,/, ""),
-    "base64",
+    "base64"
   );
 
   await fileSystem.writeFile(path, dataWrite, { encoding: "base64" });
@@ -128,23 +127,13 @@ export const addEpisodeFilm = async (req, res) => {
         throw new Error("Không tìm thấy bộ phim");
       }
 
-      const path = await writeImg(`public/images/${uuidv4()}.png`, image);
-      const newvideo = await compressVideo(
-        video,
-        `public/videos/${uuidv4()}.mp4`,
-      );
-      // const pathVideo = await writeVideo(
-      //   `public/videos/${uuidv4()}.mp4`,
-      //   newvideo
-      // );
-
       film.episode.push({
         name: name,
         description: description,
         kind: kind,
         view: 0,
-        image: path,
-        film: newvideo.output,
+        image: image,
+        film: video,
       });
 
       await film.save();
@@ -161,7 +150,7 @@ export const addEpisodeFilm = async (req, res) => {
 const writeImg = async (path, data) => {
   const dataWrite = Buffer.from(
     data.replace(/^data:image\/\w+;base64,/, ""),
-    "base64",
+    "base64"
   );
 
   await fileSystem.writeFile(path, dataWrite, { encoding: "base64" });

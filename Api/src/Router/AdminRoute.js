@@ -31,7 +31,7 @@ adminRoute.get("/films/:id", verifyTokenAdmin, getFilm);
 adminRoute.post("/delete/film", verifyTokenAdmin, deleteFilm);
 adminRoute.post("/delete/episode", verifyTokenAdmin, deleteEpisode);
 adminRoute.post("/delete/user", verifyTokenAdmin, deleteUser);
-adminRoute.post("/episode", verifyTokenAdmin, addEpisodeFilm);
+adminRoute.post("/episodes", verifyTokenAdmin, addEpisodeFilm);
 adminRoute.post("/upload-video", uploadFilmURL);
 adminRoute.post("/upload-image", uploadImageURL);
 

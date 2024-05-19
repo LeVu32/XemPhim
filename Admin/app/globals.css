@@ -1,8 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 .header-top {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+nextjs-portal {
+  display: none;
 }

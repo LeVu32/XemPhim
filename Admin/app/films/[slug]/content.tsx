@@ -38,7 +38,7 @@ function Content({ params }: { params: any }) {
       }
       console.log("click");
       const response: AxiosResponse = await axios.post(
-        "http://localhost:6945/api/film/episodes",
+        "http://localhost:1209/api/admin/episodes",
         {
           id: params.slug,
           image: image,
@@ -51,7 +51,7 @@ function Content({ params }: { params: any }) {
           headers: {
             Authorization: token,
           },
-        },
+        }
       );
 
       console.log(response.data);
@@ -82,7 +82,7 @@ function Content({ params }: { params: any }) {
               headers: {
                 Authorization: token,
               },
-            },
+            }
           );
           const { data } = response.data;
           console.log(data);
@@ -105,12 +105,7 @@ function Content({ params }: { params: any }) {
 
       <div>
         <div className="flex mb-[20px]">
-          <Image
-            src={`http://localhost:6945/image/${data?.image}`}
-            alt="hihi"
-            width={800}
-            height={400}
-          />
+          <Image src={`${data?.image}`} alt="hihi" width={800} height={400} />
         </div>
         <div className="flex items-center justify-center mb-[20px]">
           <Popover>
@@ -242,7 +237,7 @@ function Content({ params }: { params: any }) {
                       headers: {
                         "Content-Type": "multipart/form-data",
                       },
-                    },
+                    }
                   );
                   setImage(imageUrl.data.data);
                 }
@@ -271,7 +266,7 @@ function Content({ params }: { params: any }) {
                       headers: {
                         "Content-Type": "multipart/form-data",
                       },
-                    },
+                    }
                   );
                   setVideo(videoUrl.data.data);
                 }
@@ -285,7 +280,7 @@ function Content({ params }: { params: any }) {
             <Button
               auto
               onPress={handleUpload}
-              disabled={image && video ? true : false}
+              disabled={!image || !video ? true : false}
             >
               Xác nhận
             </Button>
