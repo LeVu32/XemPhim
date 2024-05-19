@@ -23,11 +23,11 @@ function Content({ params }: { params: any }) {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [kind, setKind] = useState<string>("");
-  const [base64Image, setBase64Image] = useState<string | null>(null);
-  const [base64Video, setBase64Video] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null>(null);
+  const [video, setVideo] = useState<string | null>(null);
 
   const handleUpload = async () => {
-    if (!base64Image || !name || !description || !kind) {
+    if (!image || !name || !description || !kind) {
       return;
     }
     try {
@@ -41,8 +41,8 @@ function Content({ params }: { params: any }) {
         "http://localhost:6945/api/film/episodes",
         {
           id: params.slug,
-          image: base64Image,
-          video: base64Video,
+          image: image,
+          video: video,
           name,
           description,
           kind,
@@ -51,7 +51,7 @@ function Content({ params }: { params: any }) {
           headers: {
             Authorization: token,
           },
-        }
+        },
       );
 
       console.log(response.data);
@@ -82,7 +82,7 @@ function Content({ params }: { params: any }) {
               headers: {
                 Authorization: token,
               },
-            }
+            },
           );
           const { data } = response.data;
           console.log(data);
@@ -230,17 +230,21 @@ function Content({ params }: { params: any }) {
               size="lg"
               placeholder="Ảnh"
               className="content-center"
-              onChange={(e) => {
+              onChange={async (e) => {
                 const file = (e.target as HTMLInputElement)?.files?.[0];
                 if (file) {
-                  const reader = new FileReader();
-
-                  reader.onloadend = async () => {
-                    const base64String = (await reader.result) as string;
-                    console.log(base64String);
-                    setBase64Image(base64String);
-                  };
-                  reader.readAsDataURL(file);
+                  const formData = new FormData();
+                  formData.append("image", file);
+                  const imageUrl = await axios.post(
+                    "http://localhost:1209/api/admin/upload-image",
+                    formData,
+                    {
+                      headers: {
+                        "Content-Type": "multipart/form-data",
+                      },
+                    },
+                  );
+                  setImage(imageUrl.data.data);
                 }
               }}
             />
@@ -255,18 +259,21 @@ function Content({ params }: { params: any }) {
               placeholder="Video"
               className="content-center"
               accept="video/*"
-              onChange={(e) => {
+              onChange={async (e) => {
                 const file = (e.target as HTMLInputElement)?.files?.[0];
                 if (file) {
-                  const reader = new FileReader();
-
-                  reader.onloadend = () => {
-                    const base64String = reader.result as string;
-                    setBase64Video(base64String); // Sử dụng setBase64Video để lưu chuỗi base64 của video
-                    console.log(base64String);
-                  };
-
-                  reader.readAsDataURL(file);
+                  const formData = new FormData();
+                  formData.append("video", file);
+                  const videoUrl = await axios.post(
+                    "http://localhost:1209/api/admin/upload-video",
+                    formData,
+                    {
+                      headers: {
+                        "Content-Type": "multipart/form-data",
+                      },
+                    },
+                  );
+                  setVideo(videoUrl.data.data);
                 }
               }}
             />
@@ -275,7 +282,11 @@ function Content({ params }: { params: any }) {
             <Button auto flat color="error" onPress={closeHandler}>
               Đóng
             </Button>
-            <Button auto onPress={handleUpload}>
+            <Button
+              auto
+              onPress={handleUpload}
+              disabled={image && video ? true : false}
+            >
               Xác nhận
             </Button>
           </Modal.Footer>

@@ -11,7 +11,7 @@ services:
       - 1209:1209
     volumes:
       - ./Api:/app
-        - /Api/node_modules
+      - /Api/node_modules
     env_file:
       - ./Api/.env
     networks:
@@ -21,7 +21,7 @@ services:
     build:
       context: ./Admin
       dockerfile: Dockerfile
-      target: PRODUCTION
+      # target: PRODUCTION
     container_name: admin-phim
     command: npm run dev
     ports:

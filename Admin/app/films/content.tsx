@@ -22,8 +22,8 @@ function Content() {
   const [description, setDescription] = useState<string>("");
   const [kind, setKind] = useState<string>("");
   const [idTrailer, setIdTrailer] = useState<string>("");
-  const [base64Image, setBase64Image] = useState<string | null>(null);
-  const [base64Video, setBase64Video] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null>(null);
+  const [video, setVideo] = useState<string | null>(null);
 
   const handleUpload = async () => {
     console.log("click button");
@@ -36,10 +36,10 @@ function Content() {
       }
       console.log(token);
       const response: AxiosResponse = await axios.post(
-        "http://localhost:1209/api/film/films",
+        "http://localhost:1209/api/admin/films",
         {
-          image: base64Image,
-          video: base64Video,
+          image: image,
+          video: video,
           name,
           description,
           kind,
@@ -49,7 +49,7 @@ function Content() {
           headers: {
             Authorization: token,
           },
-        }
+        },
       );
 
       console.log(response.data);
@@ -79,7 +79,7 @@ function Content() {
               headers: {
                 Authorization: token,
               },
-            }
+            },
           );
           const { data } = response.data;
           setData(data);
@@ -219,17 +219,22 @@ function Content() {
               placeholder="Ảnh"
               accept="image/*"
               className="content-center"
-              onChange={(e) => {
+              onChange={async (e) => {
                 const file = (e.target as HTMLInputElement)?.files?.[0];
+                console.log(file);
                 if (file) {
-                  const reader = new FileReader();
-
-                  reader.onloadend = () => {
-                    const base64String = reader.result as string;
-                    setBase64Image(base64String);
-                  };
-
-                  reader.readAsDataURL(file);
+                  const formData = new FormData();
+                  formData.append("image", file);
+                  const imageUrl = await axios.post(
+                    "http://localhost:1209/api/admin/upload-image",
+                    formData,
+                    {
+                      headers: {
+                        "Content-Type": "multipart/form-data",
+                      },
+                    },
+                  );
+                  setImage(imageUrl.data.data);
                 }
               }}
             />
@@ -244,17 +249,23 @@ function Content() {
               accept="video/*"
               placeholder="Video"
               className="content-center"
-              onChange={(e) => {
+              onChange={async (e) => {
                 const file = (e.target as HTMLInputElement)?.files?.[0];
+                console.log(file);
+
                 if (file) {
-                  const reader = new FileReader();
-
-                  reader.onloadend = () => {
-                    const base64String = reader.result as string;
-                    setBase64Image(base64String);
-                  };
-
-                  reader.readAsDataURL(file);
+                  const formData = new FormData();
+                  formData.append("video", file);
+                  const videoUrl = await axios.post(
+                    "http://localhost:1209/api/admin/upload-video",
+                    formData,
+                    {
+                      headers: {
+                        "Content-Type": "multipart/form-data",
+                      },
+                    },
+                  );
+                  setVideo(videoUrl.data.data);
                 }
               }}
             />
@@ -263,7 +274,11 @@ function Content() {
             <Button auto flat color="error" onPress={closeHandler}>
               Đóng
             </Button>
-            <Button auto onPress={handleUpload}>
+            <Button
+              auto
+              onPress={handleUpload}
+              disabled={image && video ? true : false}
+            >
               Xác nhận
             </Button>
           </Modal.Footer>

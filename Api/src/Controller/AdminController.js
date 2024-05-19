@@ -8,6 +8,7 @@ import Film from "../models/FilmModel.js";
 import User from "../models/UserModel.js";
 import { v4 as uuidv4 } from "uuid";
 import { promises as fileSystem } from "fs";
+import { getObject, getObjectSignedUrl, uploadStream } from "./S3Controller.js";
 
 export async function loginAdmin(req, res) {
   try {
@@ -19,9 +20,9 @@ export async function loginAdmin(req, res) {
     if (data) {
       let payload = data.toObject();
       const token = jwt.sign(payload, process.env.JWT_SECRET_TOKEN_ADMIN);
-      res.json({ status: true, token: token });
+      return res.status(200).json({ status: true, token: token });
     } else {
-      res.json({
+      return res.status(200).json({
         status: false,
         message: "Tài Khoản Hoặc Mật Khẩu Không Chính Xác",
       });
@@ -82,7 +83,7 @@ export async function registerAdmin(req, res) {
 const writeVideo = async (path, data) => {
   const dataWrite = Buffer.from(
     data.replace(/^data:video\/\w+;base64,/, ""),
-    "base64"
+    "base64",
   );
 
   await fileSystem.writeFile(path, dataWrite, { encoding: "base64" });
@@ -130,7 +131,7 @@ export const addEpisodeFilm = async (req, res) => {
       const path = await writeImg(`public/images/${uuidv4()}.png`, image);
       const newvideo = await compressVideo(
         video,
-        `public/videos/${uuidv4()}.mp4`
+        `public/videos/${uuidv4()}.mp4`,
       );
       // const pathVideo = await writeVideo(
       //   `public/videos/${uuidv4()}.mp4`,
@@ -160,7 +161,7 @@ export const addEpisodeFilm = async (req, res) => {
 const writeImg = async (path, data) => {
   const dataWrite = Buffer.from(
     data.replace(/^data:image\/\w+;base64,/, ""),
-    "base64"
+    "base64",
   );
 
   await fileSystem.writeFile(path, dataWrite, { encoding: "base64" });
@@ -178,21 +179,15 @@ export const addFilm = async (req, res) => {
     if (data.role == "admin") {
       const { name, image, description, kind, video } = req.body;
 
-      if (!image || !video) return res.sendStatus(400);
-
-      const path = await writeImg(`public/images/${uuidv4()}.png`, image);
-      const pathVideo = await writeVideo(
-        `public/videos/${uuidv4()}.mp4`,
-        video
-      );
+      if (!image || !video) return res.sendStatus(400).json({ status: false });
 
       const newFilm = new Film({
         name: name,
         description: description,
         kind: kind,
         view: 0,
-        image: path,
-        film: pathVideo,
+        image: image,
+        film: video,
       });
       await newFilm.save();
       res.json({ status: true, message: `Thêm thành công` });
@@ -276,6 +271,46 @@ export const getAllUser = async (req, res) => {
   try {
     let data = await User.find({});
     res.json({ status: true, data: data });
+  } catch (err) {
+    console.log(err);
+    res.json({ status: false, message: err });
+  }
+};
+
+export const uploadFilmURL = async (req, res) => {
+  try {
+    console.log(req.files["video"]);
+    const fileUpload = {
+      filename: req.files["video"].name,
+      originalname: req.files["video"].name,
+      encoding: req.files["video"].encoding,
+      mimetype: req.files["video"].mimetype,
+      size: req.files["video"].size,
+      buffer: req.files["video"].data,
+    };
+    const url = await uploadStream(fileUpload);
+
+    res.json({ status: true, message: "success", data: url.Key });
+  } catch (err) {
+    console.log(err);
+    res.json({ status: false, message: err });
+  }
+};
+
+// const respo = await getObjectSignedUrl(url.Key);
+
+export const uploadImageURL = async (req, res) => {
+  try {
+    const fileUpload = {
+      filename: req.files["image"].name,
+      originalname: req.files["image"].name,
+      encoding: req.files["image"].encoding,
+      mimetype: req.files["image"].mimetype,
+      size: req.files["image"].size,
+      buffer: req.files["image"].data,
+    };
+    const url = await uploadStream(fileUpload);
+    res.json({ status: true, message: "success", data: url.Key });
   } catch (err) {
     console.log(err);
     res.json({ status: false, message: err });

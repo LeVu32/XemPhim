@@ -117,7 +117,7 @@ const User = ({ navigation }) => {
           }}
         >
           <Image
-            source={{ uri: `${linkserver}/image/${item.film.image}` }}
+            source={{ uri: `${item.film.image}` }}
             style={{
               width: 120,
               height: 90,

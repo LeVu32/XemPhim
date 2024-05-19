@@ -16,7 +16,7 @@ const CardFilm = (props) => {
         }}
       >
         <Image
-          source={{ uri: `${linkserver}/image/${image}` }}
+          source={{ uri: `${image}` }}
           style={{
             width: 180,
             height: 260,

@@ -4,11 +4,19 @@ import { fileURLToPath } from "url";
 import RangeParser from "range-parser";
 import Resize from "../Controller/Resize.js";
 import FilmModel from "../models/FilmModel.js";
+import { getObjectSignedUrl } from "./S3Controller.js";
 
 export const getAll = async (req, res) => {
   try {
-    let data = await FilmModel.find({});
-    res.json({ status: true, data: data });
+    const data = await FilmModel.find({});
+    const result = await Promise.all(
+      data.map(async (item) => {
+        item.film = await getObjectSignedUrl(item.film);
+        item.image = await getObjectSignedUrl(item.image);
+        return item;
+      }),
+    );
+    res.json({ status: true, data: result });
   } catch (err) {
     console.log(err);
     res.json({ status: false, message: err });
@@ -19,13 +27,17 @@ export const getFilm = async (req, res) => {
   try {
     const id = req.params.id;
 
-    let data = await FilmModel.find({ _id: id });
-    res.json({ status: true, data: data[0] });
+    let data = await FilmModel.findOne({ _id: id });
+    data.film = await getObjectSignedUrl(data.film);
+    data.image = await getObjectSignedUrl(data.image);
+
+    res.json({ status: true, data: data });
   } catch (err) {
     console.log(err);
     res.json({ status: false, message: err });
   }
 };
+
 const decompressVideo = async (path, pathNew) => {
   return new Promise((resolve, reject) => {
     ffmpeg()

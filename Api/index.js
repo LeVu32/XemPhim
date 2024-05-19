@@ -10,6 +10,7 @@ import { dirname, join } from "path";
 import userRoute from "./src/Router/UserRoute.js";
 import filmRoute from "./src/Router/FilmRoute.js";
 import adminRoute from "./src/Router/AdminRoute.js";
+import { initializeRedisClient } from "./src/Redis/initRedis.js";
 
 dotenv.config();
 try {
@@ -37,7 +38,7 @@ app.use(express.static(uploadDirectory));
 app.use("/api/user", userRoute);
 app.use("/api/film", filmRoute);
 app.use("/api/admin", adminRoute);
-
+await initializeRedisClient();
 app.get("/image/:name", async (req, res) => {
   let name = req.params.name;
   res.sendFile(join(__dirname, `/public/images/${name}`));

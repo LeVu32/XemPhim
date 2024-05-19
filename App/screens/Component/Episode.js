@@ -1,7 +1,6 @@
 import React from "react";
 import { Text, View, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { COLORS, FONTS, SIZES } from "../../constants";
-const linkserver = "http://192.168.162.107:6945";
 const Episode = (props) => {
   let { description, episode, _id, image, name, name_film } = props.item;
   return (
@@ -18,7 +17,7 @@ const Episode = (props) => {
         }}
       >
         <Image
-          source={{ uri: `${linkserver}/image/${image}` }}
+          source={{ uri: `${image}` }}
           style={{
             width: 120,
             height: 90,
