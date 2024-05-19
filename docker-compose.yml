@@ -11,7 +11,7 @@ services:
       - 1209:1209
     volumes:
       - ./Api:/app
-        - /Api/node_modules
+      - /Api/node_modules
     env_file:
       - ./Api/.env
     networks:

@@ -9,12 +9,17 @@ import {
   like,
   getLiked,
   getInfo,
-  testMail,
+  forgotPassword,
+  confirmOTP,
+  changePass,
 } from "../Controller/UserController.js";
 
 import { ValidateUsername } from "../Middleware/validateUsername.js";
 import { ValidatePass } from "../Middleware/validatePasswords.js";
-import { verifyToken } from "../Middleware/veryfiToken.js";
+import {
+  verifyForgotPassword,
+  verifyToken,
+} from "../Middleware/veryfiToken.js";
 
 const userRoute = express.Router();
 
@@ -27,6 +32,8 @@ userRoute.get("/search", verifyToken, getSearch);
 userRoute.post("/like", verifyToken, like);
 userRoute.get("/like", verifyToken, getLiked);
 userRoute.get("/info", verifyToken, getInfo);
-userRoute.get("/test", testMail);
+userRoute.post("/forgot-password", forgotPassword);
+userRoute.post("/confirm-otp", confirmOTP);
+userRoute.post("/change-password", verifyForgotPassword, changePass);
 
 export default userRoute;

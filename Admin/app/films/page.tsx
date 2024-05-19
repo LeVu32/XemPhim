@@ -44,7 +44,7 @@ export default function Home() {
               headers: {
                 Authorization: token,
               },
-            }
+            },
           );
           const { userCount, filmCount } = response.data;
           setData({ userCount, filmCount });

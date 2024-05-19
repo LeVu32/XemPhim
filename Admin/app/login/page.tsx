@@ -13,12 +13,12 @@ interface PostData {
 }
 
 const postData = async (
-  data: PostData
+  data: PostData,
 ): Promise<{ status: number; token: string }> => {
   try {
     const response = await axios.post(
       "http://localhost:1209/api/admin/login",
-      data
+      data,
     );
     success("Đăng nhập thành công");
     return response.data;
@@ -98,7 +98,9 @@ const Login: React.FC = () => {
                   const dataRes: { status: number; token: string } =
                     await postData(data);
                   console.log(dataRes);
-                  localStorage.setItem("token", dataRes.token);
+                  if (dataRes.token) {
+                    localStorage.setItem("token", dataRes.token);
+                  }
                   router.push("/");
                 } catch (error) {
                   console.log(error);

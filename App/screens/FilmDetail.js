@@ -95,7 +95,7 @@ const FilmDetail = ({ route, navigation }) => {
           }}
         >
           <Image
-            source={{ uri: `${linkserver}/image/${item.image}` }}
+            source={{ uri: `${item.image}` }}
             style={{
               width: 120,
               height: 90,
@@ -143,7 +143,7 @@ const FilmDetail = ({ route, navigation }) => {
         /> */}
         <Video
           source={{
-            uri: `${linkserver}/api/film/episode/${currentVideo}`,
+            uri: `${currentVideo}`,
           }}
           style={{ height: 230 }}
           resizeMode="cover" // Chế độ xem video, ví dụ: "contain", "cover", "stretch"
