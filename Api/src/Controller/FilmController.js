@@ -15,10 +15,10 @@ export const getAll = async (req, res) => {
         return item;
       })
     );
-    res.json({ status: true, data: result });
+    return res.json({ status: true, data: result });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 };
 
@@ -41,10 +41,10 @@ export const getFilm = async (req, res) => {
       })
     );
 
-    res.json({ status: true, data: data });
+    return res.json({ status: true, data: data });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 };
 

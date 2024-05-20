@@ -28,7 +28,7 @@ export async function loginAdmin(req, res) {
     }
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 }
 
@@ -36,7 +36,7 @@ export async function countAdmin(req, res) {
   try {
     const dataUser = await User.find({});
     const dataPhim = await Film.find({});
-    res.json({
+    return res.json({
       status: true,
       userCount: dataUser?.length,
       filmCount: dataPhim?.length,
@@ -45,7 +45,7 @@ export async function countAdmin(req, res) {
     });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 }
 
@@ -57,7 +57,7 @@ export async function registerAdmin(req, res) {
       username: username,
     });
     if (data) {
-      res.json({
+      return res.json({
         status: false,
         message: "Tài khoản đã tồn tại.",
       });
@@ -75,7 +75,7 @@ export async function registerAdmin(req, res) {
     }
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 }
 
@@ -138,12 +138,12 @@ export const addEpisodeFilm = async (req, res) => {
 
       await film.save();
 
-      res.json({ status: true, message: "Thêm thành công" });
+      return res.json({ status: true, message: "Thêm thành công" });
     } else {
       throw new Error("Bạn không có đủ quyền");
     }
   } catch (err) {
-    res.json({ status: false, message: err.message });
+    return res.json({ status: false, message: err.message });
   }
 };
 
@@ -179,23 +179,23 @@ export const addFilm = async (req, res) => {
         film: video,
       });
       await newFilm.save();
-      res.json({ status: true, message: `Thêm thành công` });
+      return res.json({ status: true, message: `Thêm thành công` });
     } else {
       throw new Error("Bạn không có đủ quyền");
     }
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err.message });
+    return res.json({ status: false, message: err.message });
   }
 };
 
 export const getAllFilm = async (req, res) => {
   try {
     let data = await Film.find({});
-    res.json({ status: true, data: data });
+    return res.json({ status: true, data: data });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 };
 
@@ -203,10 +203,10 @@ export const getFilm = async (req, res) => {
   try {
     const id = req.params.id;
     let data = await Film.findOne({ _id: id });
-    res.json({ status: true, data: data });
+    return res.json({ status: true, data: data });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 };
 
@@ -215,10 +215,13 @@ export const deleteUser = async (req, res) => {
     const { _id } = req.body;
     await User.deleteOne({ _id });
 
-    res.json({ status: true, message: `Xoá thành công User có id: ${_id}` });
+    return res.json({
+      status: true,
+      message: `Xoá thành công User có id: ${_id}`,
+    });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 };
 export const deleteFilm = async (req, res) => {
@@ -226,10 +229,13 @@ export const deleteFilm = async (req, res) => {
     const { _id } = req.body;
     await Film.deleteOne({ _id });
 
-    res.json({ status: true, message: `Xoá thành công Film có id: ${_id}` });
+    return res.json({
+      status: true,
+      message: `Xoá thành công Film có id: ${_id}`,
+    });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 };
 
@@ -246,23 +252,23 @@ export const deleteEpisode = async (req, res) => {
     });
     film.episode = newArray;
     await film.save();
-    res.json({
+    return res.json({
       status: true,
       message: `Xoá thành công tập có id: ${idepisode}`,
     });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 };
 
 export const getAllUser = async (req, res) => {
   try {
     let data = await User.find({});
-    res.json({ status: true, data: data });
+    return res.json({ status: true, data: data });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 };
 
@@ -279,10 +285,10 @@ export const uploadFilmURL = async (req, res) => {
     };
     const url = await uploadStream(fileUpload);
 
-    res.json({ status: true, message: "success", data: url.Key });
+    return res.json({ status: true, message: "success", data: url.Key });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 };
 
@@ -299,9 +305,9 @@ export const uploadImageURL = async (req, res) => {
       buffer: req.files["image"].data,
     };
     const url = await uploadStream(fileUpload);
-    res.json({ status: true, message: "success", data: url.Key });
+    return res.json({ status: true, message: "success", data: url.Key });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 };

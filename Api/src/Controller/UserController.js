@@ -28,7 +28,7 @@ export async function register(req, res) {
     return res.json({ status: true, message: `Create ${username} done` });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err.message });
+    return res.json({ status: false, message: err.message });
   }
 }
 
@@ -45,16 +45,16 @@ export async function login(req, res) {
       const payload = data.toObject();
       const token = jwt.sign(payload, process.env.JWT_SECRET_TOKEN);
       console.log(token);
-      res.json({ status: true, token: token });
+      return res.json({ status: true, token: token });
     } else {
-      res.json({
+      return res.json({
         status: false,
         message: "Tài Khoản Hoặc Mật Khẩu Không Chính Xác",
       });
     }
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 }
 
@@ -123,13 +123,13 @@ export async function view(req, res) {
         }
       }
 
-      res.json({ status: true });
+      return res.json({ status: true });
     } else {
-      res.json({ status: false, message: "Bạn cần đăng nhập để xem" });
+      return res.json({ status: false, message: "Bạn cần đăng nhập để xem" });
     }
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 }
 
@@ -168,26 +168,26 @@ export async function getHistoryView(req, res) {
           result.push(res);
         });
       }
-      res.json({ status: true, data: result.reverse() });
+      return res.json({ status: true, data: result.reverse() });
     } else {
-      res.json({ status: false, message: "JWT sai" });
+      return res.json({ status: false, message: "JWT sai" });
     }
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 }
 export async function getInfo(req, res) {
   try {
     const data = req.dataUser;
     if (data) {
-      res.json({ status: true, message: data });
+      return res.json({ status: true, message: data });
     } else {
-      res.json({ status: false, message: "JWT sai" });
+      return res.json({ status: false, message: "JWT sai" });
     }
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 }
 
@@ -214,16 +214,16 @@ export async function search(req, res) {
           })
         );
 
-        res.json({ status: true, data: result });
+        return res.json({ status: true, data: result });
       } else {
-        res.json({ status: false, message: "Không được để trống" });
+        return res.json({ status: false, message: "Không được để trống" });
       }
     } else {
-      res.json({ status: false, message: "JWT sai" });
+      return res.json({ status: false, message: "JWT sai" });
     }
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err.message });
+    return res.json({ status: false, message: err.message });
   }
 }
 
@@ -234,13 +234,16 @@ export async function getSearch(req, res) {
       let dataUser = await User.findOne({
         username: data.username.toLowerCase(),
       });
-      res.json({ status: true, data: dataUser.toObject().search.reverse() });
+      return res.json({
+        status: true,
+        data: dataUser.toObject().search.reverse(),
+      });
     } else {
-      res.json({ status: false, message: "JWT sai" });
+      return res.json({ status: false, message: "JWT sai" });
     }
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 }
 export async function like(req, res) {
@@ -300,13 +303,13 @@ export async function like(req, res) {
         }
       }
 
-      res.json({ status: true });
+      return res.json({ status: true });
     } else {
-      res.json({ status: false, message: "Bạn cần đăng nhập để xem" });
+      return res.json({ status: false, message: "Bạn cần đăng nhập để xem" });
     }
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 }
 
@@ -334,13 +337,13 @@ export async function getLiked(req, res) {
       const result = await Promise.all(resultPromises);
       console.log(result);
 
-      res.json({ status: true, data: result.reverse() });
+      return res.json({ status: true, data: result.reverse() });
     } else {
-      res.json({ status: false, message: "JWT sai" });
+      return res.json({ status: false, message: "JWT sai" });
     }
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err.message });
+    return res.json({ status: false, message: err.message });
   }
 }
 
@@ -362,7 +365,7 @@ export const forgotPassword = async (req, res) => {
     return res.json({ status: true, message: "Mã OTP đã được gửi" });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 };
 
@@ -388,7 +391,7 @@ export const confirmOTP = async (req, res) => {
       .json({ status: true, message: "success", data: token });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 };
 
@@ -414,6 +417,6 @@ export const changePass = async (req, res) => {
       .json({ status: true, message: "success", data: data });
   } catch (err) {
     console.log(err);
-    res.json({ status: false, message: err });
+    return res.json({ status: false, message: err });
   }
 };
