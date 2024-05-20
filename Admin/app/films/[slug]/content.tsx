@@ -38,7 +38,7 @@ function Content({ params }: { params: any }) {
       }
       console.log("click");
       const response: AxiosResponse = await axios.post(
-        "http://localhost:1209/api/admin/episodes",
+        "http://api.quyvu.xyz/api/admin/episodes",
         {
           id: params.slug,
           image: image,
@@ -77,7 +77,7 @@ function Content({ params }: { params: any }) {
           router.push("/login");
         } else {
           const response = await axios.get<ResponseRq>(
-            `http://localhost:1209/api/film/${params.slug}`,
+            `http://api.quyvu.xyz/api/film/${params.slug}`,
             {
               headers: {
                 Authorization: token,
@@ -231,7 +231,7 @@ function Content({ params }: { params: any }) {
                   const formData = new FormData();
                   formData.append("image", file);
                   const imageUrl = await axios.post(
-                    "http://localhost:1209/api/admin/upload-image",
+                    "http://api.quyvu.xyz/api/admin/upload-image",
                     formData,
                     {
                       headers: {
@@ -260,7 +260,7 @@ function Content({ params }: { params: any }) {
                   const formData = new FormData();
                   formData.append("video", file);
                   const videoUrl = await axios.post(
-                    "http://localhost:1209/api/admin/upload-video",
+                    "http://api.quyvu.xyz/api/admin/upload-video",
                     formData,
                     {
                       headers: {

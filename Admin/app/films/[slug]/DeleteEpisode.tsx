@@ -27,7 +27,7 @@ export const DeleteEpisode = ({
       }
       console.log(filmId, idEpisode);
       const response: AxiosResponse = await axios.post(
-        "http://localhost:1209/api/admin/delete/episode",
+        "http://api.quyvu.xyz/api/admin/delete/episode",
         {
           idfilm: filmId,
           idepisode: idEpisode,

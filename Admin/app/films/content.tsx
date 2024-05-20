@@ -36,7 +36,7 @@ function Content() {
       }
       console.log(token);
       const response: AxiosResponse = await axios.post(
-        "http://localhost:1209/api/admin/films",
+        "http://api.quyvu.xyz/api/admin/films",
         {
           image: image,
           video: video,
@@ -74,7 +74,7 @@ function Content() {
           router.push("/login");
         } else {
           const response = await axios.get<ResponseRq>(
-            "http://localhost:1209/api/admin/listfilm",
+            "http://api.quyvu.xyz/api/admin/listfilm",
             {
               headers: {
                 Authorization: token,
@@ -226,7 +226,7 @@ function Content() {
                   const formData = new FormData();
                   formData.append("image", file);
                   const imageUrl = await axios.post(
-                    "http://localhost:1209/api/admin/upload-image",
+                    "http://api.quyvu.xyz/api/admin/upload-image",
                     formData,
                     {
                       headers: {
@@ -257,7 +257,7 @@ function Content() {
                   const formData = new FormData();
                   formData.append("video", file);
                   const videoUrl = await axios.post(
-                    "http://localhost:1209/api/admin/upload-video",
+                    "http://api.quyvu.xyz/api/admin/upload-video",
                     formData,
                     {
                       headers: {

@@ -13,12 +13,12 @@ interface PostData {
 }
 
 const postData = async (
-  data: PostData,
+  data: PostData
 ): Promise<{ status: number; token: string }> => {
   try {
     const response = await axios.post(
-      "http://localhost:1209/api/admin/login",
-      data,
+      "http://api.quyvu.xyz/api/admin/login",
+      data
     );
     success("Đăng nhập thành công");
     return response.data;

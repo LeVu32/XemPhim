@@ -27,7 +27,7 @@ function Content() {
             router.push("/login");
           } else {
             const response = await axios.get<ResponseRq>(
-              "http://localhost:1209/api/admin/listuser",
+              "http://api.quyvu.xyz/api/admin/listuser",
               {
                 headers: {
                   Authorization: token,

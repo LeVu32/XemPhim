@@ -40,7 +40,7 @@ export default function Home() {
           router.push("/login");
         } else {
           const response = await axios.post<CountResponse>(
-            "http://localhost:1209/api/admin/count",
+            "http://api.quyvu.xyz/api/admin/count",
             {},
             {
               headers: {
