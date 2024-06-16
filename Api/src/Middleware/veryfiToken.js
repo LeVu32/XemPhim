@@ -19,7 +19,7 @@ export function verifyToken(req, res, next) {
 
 export function verifyTokenAdmin(req, res, next) {
   const token = req.headers.authorization;
-  console.log("hihi");
+  console.log("token: ", token);
   if (!token) {
     return res.status(401).send({ message: "Token not provided" });
   }

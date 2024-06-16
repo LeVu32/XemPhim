@@ -1,3 +1,4 @@
+import { apiLocal } from "@/config-api";
 import axios, { AxiosResponse } from "axios";
 import Image from "next/legacy/image";
 import { useRouter } from "next/navigation";
@@ -14,7 +15,7 @@ const postData = async (
 ): Promise<{ status: number; token: string }> => {
   try {
     const response = await axios.post(
-      "http://localhost:6945/api/admin/login",
+      `http://${apiLocal}/api/admin/login`,
       data
     );
     return response.data;

@@ -7,7 +7,13 @@ import Film from "../models/FilmModel.js";
 import User from "../models/UserModel.js";
 import { v4 as uuidv4 } from "uuid";
 import { promises as fileSystem } from "fs";
-import { getObject, getObjectSignedUrl, uploadStream } from "./S3Controller.js";
+import {
+  generateUploadPresignedUrl,
+  getObjectSignedUrl,
+  uploadStream,
+} from "./S3Controller.js";
+
+import * as crypto from "crypto";
 
 export async function loginAdmin(req, res) {
   try {
@@ -162,7 +168,6 @@ const writeImg = async (path, data) => {
 
 export const addFilm = async (req, res) => {
   try {
-    // verify token
     const data = req.dataUser;
 
     if (data.role == "admin") {
@@ -283,7 +288,7 @@ export const uploadFilmURL = async (req, res) => {
       size: req.files["video"].size,
       buffer: req.files["video"].data,
     };
-    const url = await uploadStream(fileUpload);
+    const url = await uploadStream(fileUpload, "video/mp4");
 
     return res.json({ status: true, message: "success", data: url.Key });
   } catch (err) {
@@ -291,8 +296,6 @@ export const uploadFilmURL = async (req, res) => {
     return res.json({ status: false, message: err });
   }
 };
-
-// const respo = await getObjectSignedUrl(url.Key);
 
 export const uploadImageURL = async (req, res) => {
   try {
@@ -304,10 +307,34 @@ export const uploadImageURL = async (req, res) => {
       size: req.files["image"].size,
       buffer: req.files["image"].data,
     };
-    const url = await uploadStream(fileUpload);
+    console.log("file upload:", fileUpload);
+    const url = await uploadStream(fileUpload, "image/*");
+    console.log("url upload:", url);
     return res.json({ status: true, message: "success", data: url.Key });
   } catch (err) {
     console.log(err);
     return res.json({ status: false, message: err });
+  }
+};
+
+export const getLinkUploadFilm = async (req, res) => {
+  try {
+    const randomFilename = `${crypto.randomBytes(16).toString("hex")}.mp4`;
+    const url = await generateUploadPresignedUrl(
+      process.env.BUCKET_NAME,
+      randomFilename
+    );
+
+    res.json({
+      success: true,
+      url,
+      filename: randomFilename,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error generating presigned URL",
+      error: error.message,
+    });
   }
 };

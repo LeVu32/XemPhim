@@ -1,31 +1,36 @@
-version: "3.5"
+version: "3.8"
 
 services:
   api:
     build:
       context: ./Api
       dockerfile: Dockerfile
-    container_name: api
+    container_name: api-phim
     command: npm start
     ports:
       - 1209:1209
     volumes:
       - ./Api:/app
-        - /Api/node_modules
+      - /Api/node_modules
     env_file:
       - ./Api/.env
-  app:
-    image: lequyvu2001/admin:latest
-    container_name: app
-    environment:
-      - NEXT_PUBLIC_GOOGLE_CLIENT_ID=1038867842546-08nb3bfjvnn7os20jqsr24nq1hgc0diq.apps.googleusercontent.com
-      - NEXT_PUBLIC_GOOGLE_CLIENT_SECRET=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
-      - NEXT_PUBLIC_NEXTAUTH_SECRET=EscLg7T59CgKzF1
-      - NEXT_PUBLIC_NEXTAUTH_URL=http://short.zinza.com.vn
-      - NEXT_PUBLIC_API_URL=http://short.zinza.com.vn/api-v1/
-      - NEXT_PUBLIC_URL_CDN=http://short.zinza.com.vn/cdn-v1/
+    networks:
+      - app-network
+
+  admin:
+    build:
+      context: ./Admin
+      dockerfile: Dockerfile
+      # target: PRODUCTION
+    container_name: admin-phim
+    command: npm run dev
     ports:
       - 3000:3000
+    volumes:
+      - ./Admin:/app
+      # - /Admin/node_modules
+    networks:
+      - app-network
 
   redis:
     container_name: redis
@@ -44,6 +49,8 @@ services:
       - REDIS_PORT=6379
     ports:
       - 6379:6379
+    networks:
+      - app-network
     restart: unless-stopped
     depends_on:
       - api
@@ -59,7 +66,12 @@ services:
       - ./logs:/var/log/nginx
     depends_on:
       - api
-      - app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
 volumes:
   mongodb_data:
   redis_data:

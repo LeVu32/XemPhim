@@ -5,6 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DeleteUser } from "./DeleteUser";
+import { apiLocal } from "@/config-api";
 
 const getTokenFromLocalStorage = (): string | null => {
   return localStorage.getItem("token");
@@ -27,7 +28,7 @@ function Content() {
             router.push("/login");
           } else {
             const response = await axios.get<ResponseRq>(
-              "http://api.quyvu.xyz/api/admin/listuser",
+              `http://${apiLocal}/api/admin/listuser`,
               {
                 headers: {
                   Authorization: token,

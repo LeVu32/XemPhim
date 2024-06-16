@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Modal, Input, Button, Popover, Text } from "@nextui-org/react";
 import ToastMessage, { error, success } from "../Toast";
+import { apiLocal } from "@/config-api";
 
 const getTokenFromLocalStorage = (): string | null => {
   return localStorage.getItem("token");
@@ -12,8 +13,9 @@ const getTokenFromLocalStorage = (): string | null => {
 
 interface ResponseRq {
   _id: string;
-  data: [];
+  data: any;
 }
+
 function Content() {
   const router = useRouter();
   const [data, setData] = useState<any>();
@@ -24,6 +26,8 @@ function Content() {
   const [idTrailer, setIdTrailer] = useState<string>("");
   const [image, setImage] = useState<string | null>(null);
   const [video, setVideo] = useState<string | null>(null);
+  const [urlUploadFilm, setUrlUploadFilm] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   const handleUpload = async () => {
     console.log("click button");
@@ -36,7 +40,7 @@ function Content() {
       }
       console.log(token);
       const response: AxiosResponse = await axios.post(
-        "http://api.quyvu.xyz/api/admin/films",
+        `http://${apiLocal}/api/admin/films`,
         {
           image: image,
           video: video,
@@ -74,7 +78,7 @@ function Content() {
           router.push("/login");
         } else {
           const response = await axios.get<ResponseRq>(
-            "http://api.quyvu.xyz/api/admin/listfilm",
+            `http://${apiLocal}/api/admin/listfilm`,
             {
               headers: {
                 Authorization: token,
@@ -85,6 +89,12 @@ function Content() {
           setData(data);
         }
       })();
+    } catch (error) {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      (async () => {})();
     } catch (error) {}
   }, []);
 
@@ -226,7 +236,7 @@ function Content() {
                   const formData = new FormData();
                   formData.append("image", file);
                   const imageUrl = await axios.post(
-                    "http://api.quyvu.xyz/api/admin/upload-image",
+                    `http://${apiLocal}/api/admin/upload-image`,
                     formData,
                     {
                       headers: {
@@ -250,22 +260,34 @@ function Content() {
               placeholder="Video"
               className="content-center"
               onChange={async (e) => {
-                const file = (e.target as HTMLInputElement)?.files?.[0];
-                console.log(file);
-
-                if (file) {
-                  const formData = new FormData();
-                  formData.append("video", file);
-                  const videoUrl = await axios.post(
-                    "http://api.quyvu.xyz/api/admin/upload-video",
-                    formData,
-                    {
-                      headers: {
-                        "Content-Type": "multipart/form-data",
-                      },
+                try {
+                  const file = (e.target as HTMLInputElement)?.files?.[0];
+                  if (file) {
+                    const token = getTokenFromLocalStorage();
+                    if (!token) {
+                      router.push("/login");
+                    } else {
+                      const response = await axios.get<ResponseRq>(
+                        `http://${apiLocal}/api/admin/get-upload-video`,
+                        {
+                          headers: {
+                            Authorization: token,
+                          },
+                        }
+                      );
+                      const { url, filename }: any = response.data;
+                      setUrlUploadFilm(url);
+                      setVideo(filename);
                     }
-                  );
-                  setVideo(videoUrl.data.data);
+                    const videoUrl = await axios.put(`${urlUploadFilm}`, file, {
+                      headers: {
+                        "Content-Type": file.type,
+                      },
+                    });
+                  }
+                  setIsSuccess(true);
+                } catch (error) {
+                  setIsSuccess(false);
                 }
               }}
             />

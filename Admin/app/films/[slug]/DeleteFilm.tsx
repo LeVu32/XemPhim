@@ -4,6 +4,7 @@ import axios, { AxiosResponse } from "axios";
 import { Text, Button, Grid, Row } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import ToastMessage, { success, error, warning } from "../../Toast";
+import { apiLocal } from "@/config-api";
 
 const getTokenFromLocalStorage = (): string | null => {
   return localStorage.getItem("token");
@@ -20,7 +21,7 @@ export const DeleteUser = ({ filmId }: { filmId: string }) => {
         return;
       }
       const response: AxiosResponse = await axios.post(
-        "http://localhost:6945/api/admin/delete/film",
+        `http://${apiLocal}/api/admin/delete/film`,
         {
           _id: filmId,
         },

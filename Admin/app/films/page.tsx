@@ -38,13 +38,13 @@ export default function Home() {
           router.push("/login");
         } else {
           const response = await axios.post<CountResponse>(
-            "http://localhost:6945/api/admin/count",
+            "http://localhost:1209/api/admin/count",
             {},
             {
               headers: {
                 Authorization: token,
               },
-            },
+            }
           );
           const { userCount, filmCount } = response.data;
           setData({ userCount, filmCount });

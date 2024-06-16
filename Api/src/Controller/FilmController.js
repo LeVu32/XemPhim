@@ -8,6 +8,7 @@ import { getObjectSignedUrl } from "./S3Controller.js";
 export const getAll = async (req, res) => {
   try {
     const data = await FilmModel.find({});
+
     const result = await Promise.all(
       data.map(async (item) => {
         item.film = await getObjectSignedUrl(item.film);

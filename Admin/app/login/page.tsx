@@ -5,6 +5,7 @@ import Image from "next/legacy/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import ToastMessage, { success, error, warning } from "../Toast";
+import { apiLocal } from "@/config-api";
 
 interface PostData {
   // Định nghĩa kiểu dữ liệu cho dữ liệu gửi đi trong POST request
@@ -17,7 +18,7 @@ const postData = async (
 ): Promise<{ status: number; token: string }> => {
   try {
     const response = await axios.post(
-      "http://api.quyvu.xyz/api/admin/login",
+      `http://${apiLocal}/api/admin/login`,
       data
     );
     success("Đăng nhập thành công");

@@ -12,6 +12,7 @@ import {
 } from "@nextui-org/react";
 import Layout from "./layout";
 import Content from "./content";
+import { apiLocal } from "@/config-api";
 
 const getTokenFromLocalStorage = (): string | null => {
   return localStorage.getItem("token");
@@ -40,7 +41,7 @@ export default function Home() {
           router.push("/login");
         } else {
           const response = await axios.post<CountResponse>(
-            "http://api.quyvu.xyz/api/admin/count",
+            `http://${apiLocal}/api/admin/count`,
             {},
             {
               headers: {

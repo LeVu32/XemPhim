@@ -4,6 +4,7 @@ import axios, { AxiosResponse } from "axios";
 import { Text, Button, Grid, Row } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import ToastMessage, { success, error, warning } from "../../Toast";
+import { apiLocal } from "@/config-api";
 
 const getTokenFromLocalStorage = (): string | null => {
   return localStorage.getItem("token");
@@ -27,7 +28,7 @@ export const DeleteEpisode = ({
       }
       console.log(filmId, idEpisode);
       const response: AxiosResponse = await axios.post(
-        "http://api.quyvu.xyz/api/admin/delete/episode",
+        `http://${apiLocal}/api/admin/delete/episode`,
         {
           idfilm: filmId,
           idepisode: idEpisode,

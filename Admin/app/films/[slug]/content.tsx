@@ -7,6 +7,7 @@ import { DeleteUser } from "./DeleteFilm";
 import { DeleteEpisode } from "./DeleteEpisode";
 import { Modal, Input, Button, Popover, Text, Image } from "@nextui-org/react";
 import ToastMessage, { success, error } from "@/app/Toast";
+import { apiLocal } from "@/config-api";
 
 const getTokenFromLocalStorage = (): string | null => {
   return localStorage.getItem("token");
@@ -14,7 +15,7 @@ const getTokenFromLocalStorage = (): string | null => {
 
 interface ResponseRq {
   _id: string;
-  data: [];
+  data: any;
 }
 function Content({ params }: { params: any }) {
   const router = useRouter();
@@ -25,6 +26,8 @@ function Content({ params }: { params: any }) {
   const [kind, setKind] = useState<string>("");
   const [image, setImage] = useState<string | null>(null);
   const [video, setVideo] = useState<string | null>(null);
+  const [urlUploadFilm, setUrlUploadFilm] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   const handleUpload = async () => {
     if (!image || !name || !description || !kind) {
@@ -38,7 +41,7 @@ function Content({ params }: { params: any }) {
       }
       console.log("click");
       const response: AxiosResponse = await axios.post(
-        "http://api.quyvu.xyz/api/admin/episodes",
+        `http://${apiLocal}/api/admin/episodes`,
         {
           id: params.slug,
           image: image,
@@ -77,7 +80,7 @@ function Content({ params }: { params: any }) {
           router.push("/login");
         } else {
           const response = await axios.get<ResponseRq>(
-            `http://api.quyvu.xyz/api/film/${params.slug}`,
+            `http://${apiLocal}/api/film/${params.slug}`,
             {
               headers: {
                 Authorization: token,
@@ -89,6 +92,12 @@ function Content({ params }: { params: any }) {
           setData(data);
         }
       })();
+    } catch (error) {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      (async () => {})();
     } catch (error) {}
   }, []);
 
@@ -255,20 +264,38 @@ function Content({ params }: { params: any }) {
               className="content-center"
               accept="video/*"
               onChange={async (e) => {
-                const file = (e.target as HTMLInputElement)?.files?.[0];
-                if (file) {
-                  const formData = new FormData();
-                  formData.append("video", file);
-                  const videoUrl = await axios.post(
-                    "http://api.quyvu.xyz/api/admin/upload-video",
-                    formData,
-                    {
-                      headers: {
-                        "Content-Type": "multipart/form-data",
-                      },
+                try {
+                  const file = (e.target as HTMLInputElement)?.files?.[0];
+                  if (file) {
+                    const token = getTokenFromLocalStorage();
+                    if (!token) {
+                      router.push("/login");
+                    } else {
+                      const response = await axios.get<ResponseRq>(
+                        `http://${apiLocal}/api/admin/get-upload-video`,
+                        {
+                          headers: {
+                            Authorization: token,
+                          },
+                        }
+                      );
+                      const { url, filename }: any = response.data;
+                      setUrlUploadFilm(url);
+                      setVideo(filename);
+                      console.log("url", url);
+                      console.log("filename", filename);
                     }
-                  );
-                  setVideo(videoUrl.data.data);
+                    const videoUrl = await axios.put(`${urlUploadFilm}`, file, {
+                      headers: {
+                        "Content-Type": file.type,
+                      },
+                    });
+                  }
+                  setIsSuccess(true);
+                  console.log("isSuccess", isSuccess);
+                } catch (error) {
+                  setIsSuccess(false);
+                  console.log(error);
                 }
               }}
             />
@@ -280,7 +307,7 @@ function Content({ params }: { params: any }) {
             <Button
               auto
               onPress={handleUpload}
-              disabled={!image || !video ? true : false}
+              disabled={isSuccess ? false : true}
             >
               Xác nhận
             </Button>

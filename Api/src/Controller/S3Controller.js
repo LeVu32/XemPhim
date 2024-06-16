@@ -14,23 +14,13 @@ import stream from "stream";
 const S3 = new S3Client({
   endpoint: "https://1d4d0d7a6471d2c6bd3d5a7c3ca7cb82.r2.cloudflarestorage.com",
   credentials: {
-    accessKeyId: "23ff7337a2c7aeccf630cc8cc97cba8c",
+    accessKeyId: "cc9a4a2901e31c2c47bd52fe52b43450",
     secretAccessKey:
-      "abe51fa27d3d57464d58c3ae357cf7ad8ee8dcb2c9c0606016d83000a06a1433",
+      "5664712910402a5ee13081092ed9a452983b6e0ed81f98e9a50169bf0d4a0eff",
+    // sessionToken: "MgPy7vb_CTNNA-VCZxADikdaoDhtcA69y4b_yEcP",
   },
   region: "auto",
 });
-
-// const getFileName = (file) => {
-//   const tempFilename = Date.now().toString();
-//   const hashedFileName = crypto
-//     .createHash("md5")
-//     .update(tempFilename)
-//     .digest("hex");
-//   const ext = file.originalname.substring(file.originalname.lastIndexOf("."));
-//   const filename = `${hashedFileName}${ext}`;
-//   return filename;
-// };
 
 export const urlPreSign = async (Key) => {
   return await getSignedUrl(
@@ -41,20 +31,23 @@ export const urlPreSign = async (Key) => {
     }),
     {
       expiresIn: 60 * 60 * 24 * 7, // 7d
-    },
+    }
   );
 };
 
 export const getObjectSignedUrl = async (Key) => {
+  //key ~ tên file
+  // lấy link video dựa theo quyền -> có thể xem
   const command = new GetObjectCommand({
-    Bucket: process.env.BUCKET_NAME,
+    // tạo ra lệnh
+    Bucket: process.env.BUCKET_NAME, // tên bucket ~ tên thư mục
     Key,
   });
   const signedUrl = await getSignedUrl(S3, command, { expiresIn: 3600 }); // URL hết hạn sau 1 giờ
   return signedUrl;
 };
 
-export const uploadStream = async (file) => {
+export const uploadStream = async (file, type) => {
   const tempFilename = Date.now().toString();
   const hashedFileName = crypto
     .createHash("md5")
@@ -62,21 +55,18 @@ export const uploadStream = async (file) => {
     .digest("hex");
   const ext = file.originalname.substring(file.originalname.lastIndexOf("."));
   const filename = `${hashedFileName}${ext}`;
-  console.log(process.env.BUCKET_NAME);
-
   const createMultipartUploadCommand = new CreateMultipartUploadCommand({
     Bucket: process.env.BUCKET_NAME,
     Key: filename,
-    ContentType: "video/mp4",
+    ContentType: type,
   });
   const createMultipartUploadResponse = await S3.send(
-    createMultipartUploadCommand,
+    createMultipartUploadCommand
   );
   const uploadId = createMultipartUploadResponse.UploadId;
 
   const parts = [];
   let partNumber = 1;
-  const partSize = 5 * 1024 * 1024;
 
   const bufferStream = new stream.PassThrough();
   bufferStream.end(file.buffer);
@@ -107,7 +97,7 @@ export const uploadStream = async (file) => {
     },
   });
   const res = await S3.send(completeMultipartUploadCommand);
-
+  console.log("kết quả upload:", res);
   return res;
 };
 
@@ -118,22 +108,29 @@ export const getObject = async (Bucket, Key) => {
     try {
       const response = await S3.send(getObjectCommand);
 
-      // Store all of data chunks returned from the response data stream
-      // into an array then use Array#join() to use the returned contents as a String
       let responseDataChunks = [];
 
-      // Handle an error while streaming the response body
       response.Body.once("error", (err) => reject(err));
 
-      // Attach a 'data' listener to add the chunks of data to our array
-      // Each chunk is a Buffer instance
       response.Body.on("data", (chunk) => responseDataChunks.push(chunk));
 
-      // Once the stream has no more data, join the chunks into a string and return the string
       response.Body.once("end", () => resolve(responseDataChunks.join("")));
     } catch (err) {
-      // Handle the error or throw
       return reject(err);
     }
   });
+};
+
+export const generateUploadPresignedUrl = async (bucketName, key) => {
+  const command = new PutObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+    ContentType: "video/mp4",
+  });
+
+  const signedUrl = await getSignedUrl(S3, command, {
+    expiresIn: 60 * 60 * 24 * 1, // 1 day
+  });
+
+  return signedUrl;
 };
