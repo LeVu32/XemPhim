@@ -16,6 +16,9 @@ export const getAll = async (req, res) => {
         return item;
       })
     );
+
+    console.log("getAllFilm:", result);
+
     return res.json({ status: true, data: result });
   } catch (err) {
     console.log(err);
@@ -41,7 +44,7 @@ export const getFilm = async (req, res) => {
         };
       })
     );
-
+    console.log("getFilm:", data);
     return res.json({ status: true, data: data });
   } catch (err) {
     console.log(err);

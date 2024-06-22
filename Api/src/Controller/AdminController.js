@@ -138,8 +138,8 @@ export const addEpisodeFilm = async (req, res) => {
         description: description,
         kind: kind,
         view: 0,
-        image: image,
-        film: video,
+        image: image.split("?")[0],
+        film: video.split("?")[0],
       });
 
       await film.save();
@@ -180,8 +180,8 @@ export const addFilm = async (req, res) => {
         description: description,
         kind: kind,
         view: 0,
-        image: image,
-        film: video,
+        image: image.split("?")[0],
+        film: video.split("?")[0],
       });
       await newFilm.save();
       return res.json({ status: true, message: `Thêm thành công` });
@@ -308,7 +308,7 @@ export const uploadImageURL = async (req, res) => {
       buffer: req.files["image"].data,
     };
     console.log("file upload:", fileUpload);
-    const url = await uploadStream(fileUpload, "image/*");
+    const url = await uploadStream(fileUpload, "image/png");
     console.log("url upload:", url);
     return res.json({ status: true, message: "success", data: url.Key });
   } catch (err) {
