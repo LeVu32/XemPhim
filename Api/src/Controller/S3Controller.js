@@ -14,9 +14,9 @@ import stream from "stream";
 const S3 = new S3Client({
   endpoint: "https://1d4d0d7a6471d2c6bd3d5a7c3ca7cb82.r2.cloudflarestorage.com",
   credentials: {
-    accessKeyId: "cc9a4a2901e31c2c47bd52fe52b43450",
+    accessKeyId: "0ad7e70c89a375ac8562bd6e41f8186c",
     secretAccessKey:
-      "5664712910402a5ee13081092ed9a452983b6e0ed81f98e9a50169bf0d4a0eff",
+      "3c684d94de91ffa5c2ec956801092d537ae18fb3e728e45d215e4f424c53c65d",
     // sessionToken: "MgPy7vb_CTNNA-VCZxADikdaoDhtcA69y4b_yEcP",
   },
   region: "auto",

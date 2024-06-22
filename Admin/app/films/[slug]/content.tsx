@@ -30,16 +30,14 @@ function Content({ params }: { params: any }) {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   const handleUpload = async () => {
-    if (!image || !name || !description || !kind) {
-      return;
-    }
     try {
       const token = getTokenFromLocalStorage();
       if (!token) {
         router.push("/login");
         return;
       }
-      console.log("click");
+      console.log(image);
+
       const response: AxiosResponse = await axios.post(
         `http://${apiLocal}/api/admin/episodes`,
         {
@@ -57,7 +55,6 @@ function Content({ params }: { params: any }) {
         }
       );
 
-      console.log(response.data);
       success(response.data?.message);
     } catch (e: any) {
       console.error(e);
@@ -236,11 +233,12 @@ function Content({ params }: { params: any }) {
               className="content-center"
               onChange={async (e) => {
                 const file = (e.target as HTMLInputElement)?.files?.[0];
+                console.log(file);
                 if (file) {
                   const formData = new FormData();
                   formData.append("image", file);
                   const imageUrl = await axios.post(
-                    "http://api.quyvu.xyz/api/admin/upload-image",
+                    `http://${apiLocal}/api/admin/upload-image`,
                     formData,
                     {
                       headers: {
@@ -280,16 +278,13 @@ function Content({ params }: { params: any }) {
                         }
                       );
                       const { url, filename }: any = response.data;
-                      setUrlUploadFilm(url);
-                      setVideo(filename);
-                      console.log("url", url);
-                      console.log("filename", filename);
+                      setUrlUploadFilm(response.data.url);
+                      setVideo(response.data.filename);
+                      const videoUrl = await axios.put(
+                        `${response.data.url}`,
+                        file
+                      );
                     }
-                    const videoUrl = await axios.put(`${urlUploadFilm}`, file, {
-                      headers: {
-                        "Content-Type": file.type,
-                      },
-                    });
                   }
                   setIsSuccess(true);
                   console.log("isSuccess", isSuccess);
@@ -307,7 +302,7 @@ function Content({ params }: { params: any }) {
             <Button
               auto
               onPress={handleUpload}
-              disabled={isSuccess ? false : true}
+              disabled={!isSuccess ? true : false}
             >
               Xác nhận
             </Button>

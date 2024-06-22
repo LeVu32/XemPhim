@@ -276,14 +276,13 @@ function Content() {
                         }
                       );
                       const { url, filename }: any = response.data;
-                      setUrlUploadFilm(url);
-                      setVideo(filename);
+                      setUrlUploadFilm(response.data.url);
+                      setVideo(response.data.filename);
+                      const videoUrl = await axios.put(
+                        `${response.data.url}`,
+                        file
+                      );
                     }
-                    const videoUrl = await axios.put(`${urlUploadFilm}`, file, {
-                      headers: {
-                        "Content-Type": file.type,
-                      },
-                    });
                   }
                   setIsSuccess(true);
                 } catch (error) {
@@ -299,7 +298,7 @@ function Content() {
             <Button
               auto
               onPress={handleUpload}
-              disabled={!image || !video ? true : false}
+              disabled={!isSuccess ? true : false}
             >
               Xác nhận
             </Button>
